@@ -18,7 +18,7 @@ Preload monitors which applications you use and learns your usage patterns throu
 
 ---
 
-## Quick Start
+## Quick Install or only build
 
 ```bash
 # Build
