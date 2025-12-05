@@ -7,10 +7,11 @@ This directory contains documentation for the Preload-NG project.
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [How It Works](#how-it-works)
-3. [Configuration](#configuration)
-4. [Troubleshooting](#troubleshooting)
-5. [Technical Details](#technical-details)
+2. [Installation](#installation)
+3. [How It Works](#how-it-works)
+4. [Configuration](#configuration)
+5. [Troubleshooting](#troubleshooting)
+6. [Technical Details](#technical-details)
 
 ---
 
@@ -24,6 +25,52 @@ Preload is an adaptive readahead daemon that monitors application usage and pref
 - **Low Overhead**: Runs quietly in the background with minimal resource usage
 - **Adaptive Learning**: Continuously learns from your usage patterns
 - **Desktop Agnostic**: Works with any desktop environment or window manager
+
+---
+
+## Installation
+
+### Using the Install Script
+
+```bash
+git clone https://github.com/miguel-b-p/preload-ng.git
+cd preload-ng/scripts
+bash install.sh
+```
+
+### Using Nix Flakes
+
+```bash
+# Build the package
+nix build github:miguel-b-p/preload-ng
+
+# Run directly
+nix run github:miguel-b-p/preload-ng
+
+# Enter development shell
+nix develop github:miguel-b-p/preload-ng
+```
+
+#### NixOS Configuration
+
+Add to your `flake.nix`:
+
+```nix
+{
+  inputs.preload-ng.url = "github:miguel-b-p/preload-ng";
+
+  outputs = { self, nixpkgs, preload-ng, ... }: {
+    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+      modules = [
+        preload-ng.nixosModules.default
+        {
+          services.preload.enable = true;
+        }
+      ];
+    };
+  };
+}
+```
 
 ---
 

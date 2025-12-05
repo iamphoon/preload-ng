@@ -18,14 +18,51 @@ Preload monitors which applications you use and learns your usage patterns throu
 
 ---
 
-## Quick Install or only build
+## Quick Install
+
+### Using the Install Script
 
 ```bash
-# Build
 git clone https://github.com/miguel-b-p/preload-ng.git
 cd preload-ng/scripts
 bash install.sh
 ```
+
+### Using Nix Flakes
+
+```bash
+# Build the package
+nix build github:miguel-b-p/preload-ng
+
+# Run directly
+nix run github:miguel-b-p/preload-ng
+
+# Enter development shell
+nix develop github:miguel-b-p/preload-ng
+```
+
+#### NixOS Configuration
+
+Add to your `flake.nix`:
+
+```nix
+{
+  inputs.preload-ng.url = "github:miguel-b-p/preload-ng";
+
+  outputs = { self, nixpkgs, preload-ng, ... }: {
+    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+      modules = [
+        preload-ng.nixosModules.default
+        {
+          services.preload.enable = true;
+        }
+      ];
+    };
+  };
+}
+```
+
+> **TODO:** Add NixOS module options to configure `/etc/preload.conf` settings declaratively (e.g., `services.preload.settings.cycle`, `services.preload.settings.memfree`, etc.).
 
 ---
 
