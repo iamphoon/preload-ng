@@ -20,6 +20,8 @@ MAINTAINERCLEANFILES = \
 		$(srcdir)/ltmain.sh \
 		$(srcdir)/missing \
 		$(srcdir)/mkinstalldirs \
+		$(srcdir)/configure \
+		$(srcdir)/test-driver \
 		`find "$(srcdir)" -type f -name Makefile.in -print` \
 		`find "$(srcdir)" -type f -name "*~" -print` \
 		`$(srcdir)/bootstrap --write-configure`

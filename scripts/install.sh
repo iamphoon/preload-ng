@@ -19,20 +19,38 @@ check_command() {
     fi
 }
 
-check_command autoreconf
+check_command automake
+check_command autoconf
+check_command libtool
 check_command make
 check_command gcc
-cd ./preload-src
-make distclean
+
+# Move to source directory
+if [ -d "preload-src" ]; then
+    cd preload-src
+elif [ -d "../preload-src" ]; then
+    cd ../preload-src
+else
+    echo "Error: preload-src directory not found."
+    exit 1
+fi
+
+# Clean previous build if Makefile exists
+if [ -f Makefile ]; then
+    echo "Cleaning previous build..."
+    make distclean
+fi
+
+# Build system generation
+echo "[2/4] Configuring build system..."
 ./bootstrap
-autoreconf -fi
 ./configure
+echo "[3/4] Compiling..."
 make
 
 echo "=========================================="
 echo "  Build completed successfully!"
 echo "=========================================="
-echo ""
 
 # Ask if user wants to install
 read -p "Do you want to install preload? (y/N): " response
