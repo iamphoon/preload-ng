@@ -23,7 +23,7 @@ check_command autoreconf
 check_command make
 check_command gcc
 cd ./preload-src
-
+make distclean
 ./bootstrap
 autoreconf -fi
 ./configure

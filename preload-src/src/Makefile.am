@@ -50,7 +50,7 @@ TESTS = runtests.sh
 
 check: preload.conf
 
-DISTCLEANFILES = preload.conf preload.state preload.log
+DISTCLEANFILES = preload.conf preload.state preload.log $(MAINTAINERCLEANFILES)
 nodist_sysconf_DATA = preload.conf
 preload.conf: gen.preload.conf.sh preload.conf.in confkeys.h
 	$(SHELL) $^ > $@.tmp && mv $@.tmp $@

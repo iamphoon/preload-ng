@@ -28,6 +28,11 @@ MAINTAINERCLEANFILES = \
 # remove the configure script.
 # We instead make configure call bootstrap.
 
+DISTCLEANFILES = $(MAINTAINERCLEANFILES)
+
+distclean-local:
+	-rm -rf autom4te.cache
+
 # Indent all C source and header files, using indent(1):
 
 indent: $(srcdir)/.indent.pro
