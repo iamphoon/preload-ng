@@ -4,12 +4,12 @@
 ## Use autoscan to check if you need to add something to this file.
 ##############################################################################
 
-AC_PREREQ(2.56)
+AC_PREREQ(2.60)
 AC_INIT([preload], [0.6.4], [http://preload.sf.net/bug])
 AC_CONFIG_SRCDIR(src/preload.c)
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE(gnits)
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 
 PACKAGE_SUMMARY="Adaptive readahead daemon"
 AC_SUBST(PACKAGE_SUMMARY)
@@ -25,8 +25,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 
 # Checks for header files.
-AC_HEADER_STDC
-AC_HEADER_TIME
+
 AC_CHECK_HEADERS([stdlib.h string.h strings.h inttypes.h sys/times.h])
 
 # Checks for typedefs and structures.
@@ -46,7 +45,7 @@ AC_CHECK_FUNCS(readahead,,[echo "*** readahead(2) system call required but not f
 			   echo "*** Exiting";
 			   exit 1;])
 
-AC_TYPE_SIGNAL
+
 
 AC_CHECK_HEADERS([linux/fs.h])
 

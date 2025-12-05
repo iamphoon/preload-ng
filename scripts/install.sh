@@ -22,27 +22,12 @@ check_command() {
 check_command autoreconf
 check_command make
 check_command gcc
+cd ./preload-src
 
-echo "      ✓ All dependencies found"
-echo ""
-
-# Run autoreconf
-echo "[2/4] Running autoreconf..."
+./bootstrap
 autoreconf -fi
-echo "      ✓ autoreconf completed"
-echo ""
-
-# Run configure
-echo "[3/4] Running configure..."
 ./configure
-echo "      ✓ configure completed"
-echo ""
-
-# Compile
-echo "[4/4] Compiling..."
 make
-echo "      ✓ Compilation completed"
-echo ""
 
 echo "=========================================="
 echo "  Build completed successfully!"

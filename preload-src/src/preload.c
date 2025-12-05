@@ -108,7 +108,7 @@ sig_handler_sync (gpointer data)
   return FALSE;
 }
 
-static RETSIGTYPE
+static void
 sig_handler (int sig)
 {
   g_timeout_add (0, sig_handler_sync, GINT_TO_POINTER (sig));
