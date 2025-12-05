@@ -22,15 +22,9 @@ Preload monitors which applications you use and learns your usage patterns throu
 
 ```bash
 # Build
-git clone https://github.com/miguel-b-p/preload-ng.git && cd preload-ng/preload-src
-make distclean
-./bootstrap
-./configure
-make
-sudo make install
-
-# Enable (systemd)
-sudo systemctl enable --now preload
+git clone https://github.com/miguel-b-p/preload-ng.git
+cd preload-ng/scripts
+bash install.sh
 ```
 
 ---

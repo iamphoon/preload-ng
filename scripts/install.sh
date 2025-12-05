@@ -60,12 +60,10 @@ case "$response" in
     echo ""
     echo "Installing preload (requires root permissions)..."
     sudo make install
+    sudo systemctl enable --now preload
     echo ""
     echo "✓ Preload installed successfully!"
     echo ""
-    echo "To enable the service, run:"
-    echo "  sudo systemctl enable preload"
-    echo "  sudo systemctl start preload"
     ;;
 *)
     echo ""
