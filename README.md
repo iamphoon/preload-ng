@@ -1,0 +1,75 @@
+# Preload-NG
+
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
+[![C](https://img.shields.io/badge/Language-C-blue.svg)](<https://en.wikipedia.org/wiki/C_(programming_language)>)
+[![Linux](https://img.shields.io/badge/Platform-Linux-green.svg)](https://www.kernel.org/)
+
+An adaptive **readahead daemon** that prefetches files to reduce application startup times on Linux systems.
+
+> **Note:** This is a maintained fork of the original [preload](http://preload.sf.net/) project, discontinued since 2009.
+
+---
+
+## About
+
+Preload monitors which applications you use and learns your usage patterns through **Markov chains**. It predicts which applications you're likely to run next and preloads their binaries and shared libraries into memory.
+
+**For detailed documentation, configuration, and troubleshooting, see [doc/README.md](doc/README.md).**
+
+---
+
+## Quick Start
+
+```bash
+# Build
+./configure && make && sudo make install
+
+# Enable (systemd)
+sudo systemctl enable --now preload
+```
+
+---
+
+## Origin & Credits
+
+**Original Author:** [Behdad Esfahbod](http://behdad.org/) — Created in 2005 as part of [Google Summer of Code](https://summerofcode.withgoogle.com/), mentored by [Fedora Project](https://fedoraproject.org/).
+
+**Contributors:** Ziga Mahkovec, Soeren Sandmann, Arjan van de Ven, bert hubert, Elliot Lee
+
+---
+
+## About This Fork
+
+The original project was last updated in **April 2009** (v0.6.4). **Preload-NG** aims to:
+
+- Maintain compatibility with modern Linux kernels
+- Fix bugs and memory leaks
+- Implement originally planned features
+
+See [UPDATES.md](UPDATES.md) for the detailed changelog.
+
+---
+
+## Project Structure
+
+```
+preload-ng/
+├── src/          # Source code
+├── doc/          # Documentation
+├── oldfiles/     # Historical files (AUTHORS, NEWS, ChangeLog, etc.)
+├── scripts/      # Utility scripts (bootstrap, bench.sh)
+└── UPDATES.md    # Fork changelog
+```
+
+---
+
+## License
+
+**GNU General Public License v2** — See [LICENSE](LICENSE)
+
+---
+
+## Links
+
+- **Original Project:** http://preload.sf.net/
+- **Original Author:** http://behdad.org/

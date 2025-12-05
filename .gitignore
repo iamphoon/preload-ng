@@ -1,0 +1,43 @@
+# Build outputs
+*.o
+*.a
+*.so
+*.la
+*.lo
+preload
+
+# Autotools generated
+Makefile
+.deps/
+.libs/
+autom4te.cache/
+config.h
+config.log
+config.status
+stamp-h1
+libtool
+
+# Editor backups
+*~
+*.bak
+*.swp
+*.swo
+.*.swp
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Debug
+*.dSYM/
+
+# OS
+.DS_Store
+Thumbs.db
+core
