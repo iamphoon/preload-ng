@@ -286,6 +286,6 @@ Preload respects system memory limits:
 ## See Also
 
 - [README.md](../README.md) — Project overview and credits
-- [UPDATES.md](../UPDATES.md) — Changelog for this fork
-- [oldfiles/proposal.txt](../oldfiles/proposal.txt) — Original GSoC proposal
+- [CHANGELOG](../changelogs/0.6.6.md) — Changelog for this fork
+- [proposal.txt](../preload-src/doc/proposal.txt) — Original GSoC proposal
 - `man preload` — Manual page

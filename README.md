@@ -22,7 +22,12 @@ Preload monitors which applications you use and learns your usage patterns throu
 
 ```bash
 # Build
-./configure && make && sudo make install
+git clone https://github.com/miguel-b-p/preload-ng.git && cd preload-ng/preload-src
+make distclean
+./bootstrap
+./configure
+make
+sudo make install
 
 # Enable (systemd)
 sudo systemctl enable --now preload
@@ -46,7 +51,7 @@ The original project was last updated in **April 2009** (v0.6.4). **Preload-NG**
 - Fix bugs and memory leaks
 - Implement originally planned features
 
-See [UPDATES.md](UPDATES.md) for the detailed changelog.
+See [changelogs/0.6.6.md](changelogs/0.6.6.md) for the detailed changelog.
 
 ---
 
@@ -54,11 +59,10 @@ See [UPDATES.md](UPDATES.md) for the detailed changelog.
 
 ```
 preload-ng/
-├── src/          # Source code
+├── preload-src/  # Source code
 ├── doc/          # Documentation
-├── oldfiles/     # Historical files (AUTHORS, NEWS, ChangeLog, etc.)
-├── scripts/      # Utility scripts (bootstrap, bench.sh)
-└── UPDATES.md    # Fork changelog
+├── changelogs/   # Version changelogs
+└── scripts/      # Utility scripts (install.sh)
 ```
 
 ---
