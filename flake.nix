@@ -102,28 +102,24 @@
 
               serviceConfig = {
                 Type = "simple";
-                ExecStart = "${cfg.package}/bin/preload --logfile /var/log/preload.log --statefile /var/lib/preload/preload.state --conffile ${cfg.package}/etc/preload.conf";
+                # Log to stderr (goes to journal), state in private namespace
+                ExecStart = "${cfg.package}/bin/preload --foreground --logfile '' --statefile /var/lib/preload/preload.state --conffile ${cfg.package}/etc/preload.conf";
                 Restart = "on-failure";
+
+                # Security: dynamic user with private state directory
+                DynamicUser = true;
+                StateDirectory = "preload";
 
                 # Hardening
                 ProtectSystem = "strict";
                 ProtectHome = true;
                 PrivateTmp = true;
                 NoNewPrivileges = true;
-
-                # Automatically create /var/lib/preload and /var/log/preload
-                StateDirectory = "preload";
-                #LogsDirectory = "preload"; # preload-ng might write directly to /var/log/preload.log, so we let it access /var/log for now or check config
-
-                ReadWritePaths = [
-                  "/var/log"
-                ];
+                CapabilityBoundingSet = "";
+                RestrictNamespaces = true;
+                RestrictRealtime = true;
+                MemoryDenyWriteExecute = true;
               };
-
-              preStart = ''
-                # /var/lib/preload is created by StateDirectory
-                mkdir -p /var/log
-              '';
             };
 
             environment.systemPackages = [ cfg.package ];
