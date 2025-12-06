@@ -3,7 +3,7 @@
 
 echo "=== BENCHMARK WITHOUT PRELOAD ==="
 # Stop preload and remove all traces
-sudo systemctl stop preload
+sudo systemctl stop preload-ng
 
 # Sync all pending buffers to disk
 sync
@@ -21,11 +21,11 @@ sleep 5
 echo "Cache cleared. Starting baseline benchmark..."
 hyperfine --warmup 1 --runs 10 \
     --prepare 'sync; echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null; sleep 2' \
-    'libreoffice --calc & xdotool search --sync --onlyvisible --class "libreoffice-calc" windowkill'
+    'gimp & xdotool search --sync --onlyvisible --class "gimp" windowkill'
 
 echo ""
 echo "=== BENCHMARK WITH PRELOAD ==="
-sudo systemctl start preload
+sudo systemctl start preload-ng
 
 # Wait for preload to start and make first predictions
 echo "Waiting for preload to learn patterns (40s = 2 cycles)..."
@@ -33,4 +33,4 @@ sleep 40
 
 hyperfine --warmup 1 --runs 10 \
     --prepare 'sync; echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null; sleep 2' \
-    'libreoffice --calc & xdotool search --sync --onlyvisible --class "libreoffice-calc" windowkill'
+    'gimp & xdotool search --sync --onlyvisible --class "gimp" windowkill'
