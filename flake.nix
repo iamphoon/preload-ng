@@ -36,8 +36,9 @@
           installPhase = ''
             runHook preInstall
 
-            mkdir -p $out/bin
+            mkdir -p $out/bin $out/etc
             cp preload $out/bin/preload
+            cp preload.conf $out/etc/preload.conf
             chmod +x $out/bin/preload
 
             runHook postInstall
@@ -101,7 +102,7 @@
 
               serviceConfig = {
                 Type = "simple";
-                ExecStart = "${cfg.package}/bin/preload --logfile /var/log/preload.log --statefile /var/lib/preload/preload.state --conffile ''";
+                ExecStart = "${cfg.package}/bin/preload --logfile /var/log/preload.log --statefile /var/lib/preload/preload.state --conffile ${cfg.package}/etc/preload.conf";
                 Restart = "on-failure";
 
                 # Hardening
