@@ -30,7 +30,15 @@ Preload is an adaptive readahead daemon that monitors application usage and pref
 
 ## Installation
 
-### Using the Install Script
+### Using Precompiled Binary
+
+```bash
+git clone https://github.com/miguel-b-p/preload-ng.git
+cd preload-ng/scripts
+sudo bash install.sh
+```
+
+### Building from Source
 
 ```bash
 git clone https://github.com/miguel-b-p/preload-ng.git

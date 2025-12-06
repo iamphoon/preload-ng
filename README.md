@@ -20,7 +20,15 @@ Preload monitors which applications you use and learns your usage patterns throu
 
 ## Quick Install
 
-### Using the Install Script
+### Using Precompiled Binary
+
+```bash
+git clone https://github.com/miguel-b-p/preload-ng.git
+cd preload-ng/scripts
+sudo bash install.sh
+```
+
+### Building from Source
 
 ```bash
 git clone https://github.com/miguel-b-p/preload-ng.git
