@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p bin
           cp preload-src/src/preload bin/preload
+          cp preload-src/src/preload.conf bin/preload.conf
           cd preload-src
           make distclean
 
