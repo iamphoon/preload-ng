@@ -211,7 +211,7 @@
 
               mapPrefix = lib.mkOption {
                 type = lib.types.str;
-                default = "/usr/;/lib;/var/cache/;!/";
+                default = "/nix/store/;/run/current-system/;!/";
                 description = ''
                   Path prefixes for mapped files. Items separated by semicolons.
                   Prefix with ! to reject. Example: !/lib/modules;/
@@ -220,7 +220,7 @@
 
               exePrefix = lib.mkOption {
                 type = lib.types.str;
-                default = "!/usr/sbin/;!/usr/local/sbin/;/usr/;!/";
+                default = "/nix/store/;/run/current-system/;!/";
                 description = ''
                   Path prefixes for executables. Same syntax as mapPrefix.
                 '';
