@@ -274,6 +274,23 @@ uninstall() {
     print_success "Preload-NG uninstalled successfully!"
 }
 
+stop_preload() {
+    # Stop preload service if running
+    if [ "$init_system" = "systemd" ]; then
+        if systemctl is-active --quiet preload 2>/dev/null; then
+            print_info "Stopping running preload service..."
+            systemctl stop preload
+            print_success "Service stopped"
+        fi
+    elif [ "$init_system" = "openrc" ]; then
+        if rc-service preload status &>/dev/null; then
+            print_info "Stopping running preload service..."
+            rc-service preload stop
+            print_success "Service stopped"
+        fi
+    fi
+}
+
 install() {
     print_header
     check_root
@@ -290,6 +307,8 @@ install() {
         print_info "Will install binary and config only (no service)"
         echo ""
     fi
+
+    stop_preload
 
     # Install components
     install_binary
