@@ -13,8 +13,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 INSTALL_BIN="/usr/local/sbin"
-INSTALL_CONF="/etc"
-VAR_LIB="/var/lib/preload"
+INSTALL_CONF="/usr/local/etc"
+VAR_LIB="/usr/local/var/lib/preload"
 SYSTEMD_DIR="/etc/systemd/system"
 OPENRC_DIR="/etc/init.d"
 
@@ -143,7 +143,7 @@ RestartSec=5
 # Security hardening
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=/var/lib/preload /var/log
+ReadWritePaths=/usr/local/var/lib/preload /var/log /usr/local/var/log
 PrivateTmp=true
 NoNewPrivileges=true
 
