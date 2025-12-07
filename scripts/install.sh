@@ -135,7 +135,7 @@ After=local-fs.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/sbin/preload --foreground
+ExecStart=/usr/local/sbin/preload --foreground --logfile ''
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=5
