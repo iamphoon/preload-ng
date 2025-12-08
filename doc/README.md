@@ -88,32 +88,34 @@ All settings from `preload.conf` are available as NixOS options:
 {
   services.preload-ng = {
     enable = true;
-    debug = false;             # Enable verbose debug output (default: false)
-    usePrecompiled = true;     # Use precompiled binary (true) or compile from source (false)
+    debug = false;             # Enable verbose debug output. Default: false
+    usePrecompiled = true;     # Use precompiled binary (true) or compile from source (false). Default: true
     settings = {
       # Model settings
-      cycle = 20;              # Time quantum in seconds
-      useCorrelation = true;   # Use correlation in predictions
-      minSize = 2000000;       # Minimum map size to track (bytes)
+      cycle = 20;              # Time quantum in seconds for data gathering. Default: 20
+      useCorrelation = true;   # Use correlation coefficient in prediction algorithm. Default: true
+      minSize = 2000000;       # Minimum sum of map sizes to track (bytes). Default: 2000000
 
       # Memory thresholds (percentages, -100 to 100)
-      memTotal = -10;
-      memFree = 50;
-      memCached = 0;
-      memBuffers = 50;
+      memTotal = -10;          # Max memory to use relative to total RAM. Default: -10
+      memFree = 50;            # Percentage of free memory to use. Default: 50
+      memCached = 0;           # Percentage of cached memory to use. Default: 0
+      memBuffers = 50;         # Percentage of buffer memory to use. Default: 50
 
       # System settings
-      doScan = true;           # Monitor running processes
-      doPredict = true;        # Enable prefetching
-      autoSave = 3600;         # Auto-save period (seconds)
+      doScan = true;           # Whether to monitor running processes. Default: true
+      doPredict = true;        # Whether to make predictions and prefetch. Default: true
+      autoSave = 3600;         # Period in seconds to save state to disk. Default: 3600
 
       # File filtering
-      mapPrefix = "/usr/;/lib;/var/cache/;!/";
-      exePrefix = "!/usr/sbin/;!/usr/local/sbin/;/usr/;!/";
+      # Default: "/nix/store/;/run/current-system/;!/" (NixOS specific)
+      mapPrefix = "/nix/store/;/run/current-system/;!/";
+      # Default: "/nix/store/;/run/current-system/;!/" (NixOS specific)
+      exePrefix = "/nix/store/;/run/current-system/;!/";
 
       # I/O settings
-      processes = 30;          # Parallel readahead processes
-      sortStrategy = 3;        # 0=none, 1=path, 2=inode, 3=block
+      processes = 30;          # Maximum number of parallel readahead processes. Default: 30
+      sortStrategy = 3;        # I/O sorting strategy: 0=none, 1=path, 2=inode, 3=block. Default: 3
     };
   };
 }
