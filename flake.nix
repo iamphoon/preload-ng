@@ -142,6 +142,12 @@
           options.services.preload-ng = {
             enable = lib.mkEnableOption "preload-ng daemon";
 
+            debug = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Enable debug mode. Outputs every debug messages.";
+            };
+
             package = lib.mkOption {
               type = lib.types.package;
               default = preload-pkg;
@@ -259,7 +265,9 @@
 
               serviceConfig = {
                 Type = "simple";
-                ExecStart = "${configuredPackage}/bin/preload --foreground --conffile ${configuredPackage}/etc/conf.d/preload.conf --statefile /var/lib/preload/preload.state --logfile ''";
+                ExecStart = "${configuredPackage}/bin/preload --foreground --conffile ${configuredPackage}/etc/conf.d/preload.conf --statefile /var/lib/preload/preload.state ${
+                  if cfg.debug then "-d" else "--logfile ''"
+                }";
                 Restart = "on-failure";
 
                 # Hardening
