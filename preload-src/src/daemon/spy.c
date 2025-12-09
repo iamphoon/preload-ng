@@ -38,8 +38,8 @@ static GHashTable *new_exes;
 static void
 running_process_callback (gpointer key, gpointer G_GNUC_UNUSED value, gpointer G_GNUC_UNUSED user_data)
 {
-  pid_t pid = (pid_t)GPOINTER_TO_INT(value);
-  const char *path = (const char *)key;
+  pid_t pid = (pid_t)GPOINTER_TO_INT(key);
+  const char *path = (const char *)value;
 
   preload_exe_t *exe;
 
