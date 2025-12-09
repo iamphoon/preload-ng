@@ -260,8 +260,8 @@ static void predict_global_frequency(void) {
                 if (global_conf > 0.5) global_conf = 0.5;
                 
                 child->exe->lnprob += log(1.0 - global_conf);
-                g_debug("VOMM Global: Bidding on %s with global_conf %.3f (count=%d)", 
-                        child->exe->path, global_conf, child->count);
+                /* g_debug("VOMM Global: Bidding on %s with global_conf %.3f (count=%d)", 
+                        child->exe->path, global_conf, child->count); */
             }
         }
     }
