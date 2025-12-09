@@ -7,7 +7,7 @@
 *.tar.gz
 
 # Autotools generated
-Makefile
+
 .deps/
 .libs/
 autom4te.cache/
