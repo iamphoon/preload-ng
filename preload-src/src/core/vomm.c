@@ -69,6 +69,12 @@ void vomm_cleanup(void) {
         vomm_node_free(vomm_system.root);
     }
     g_list_free(vomm_system.history);
+    
+    /* Reset global state to avoid dangling pointers */
+    vomm_system.root = NULL;
+    vomm_system.history = NULL;
+    vomm_system.current_context = NULL;
+    vomm_system.history_length = 0;
 }
 
 /* 
@@ -177,11 +183,12 @@ static void predict_ppm(vomm_node_t *node) {
         
         double child_conf = (double)child->count / total_children_calls;
         
-        /* Avoid log(0) */
-        if (child_conf > 0.99) child_conf = 0.99;
+        /* Clamp child_conf to a safe range to avoid log(0) */
+        const double epsilon = 1e-9;
+        child_conf = fmax(epsilon, fmin(1.0 - epsilon, child_conf));
         
-        child->exe->lnprob += log(1.0 - child_conf);
-        g_debug("VOMM PPM: Bidding on %s with conf %.2f", child->exe->path, child_conf);
+        child->exe->lnprob += log(child_conf);
+        g_debug("VOMM PPM: Bidding on %s with conf %.4f", child->exe->path, child_conf);
     }
 }
 
@@ -205,8 +212,8 @@ static void predict_dg_fallback(vomm_node_t *node) {
         if (child->count > 0) {
              /* Weak bid for all neighbors */
              /* Add a small probability boost */
-             child->exe->lnprob += log(0.9);
-             g_debug("VOMM: Fallback bidding on %s with lnprob += %f", child->exe->path, log(0.9));
+             child->exe->lnprob += log(1.1);
+             g_debug("VOMM: Fallback bidding on %s with lnprob += %f", child->exe->path, log(1.1));
         }
     }
 }
