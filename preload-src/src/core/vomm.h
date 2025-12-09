@@ -40,4 +40,10 @@ void vomm_update(preload_exe_t *exe);
  */
 void vomm_predict(void);
 
+/* 
+ * Hydrate VOMM model from legacy Markov state.
+ * Should be called after loading state from disk.
+ */
+void vomm_hydrate_from_state(void);
+
 #endif /* VOMM_H */

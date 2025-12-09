@@ -1239,6 +1239,9 @@ preload_state_run (const char *statefile)
   if (preload_is_vomm_algorithm()) {
       if (!vomm_init()) {
           g_warning("Failed to initialize VOMM algorithm");
+      } else {
+          /* VOMM starts empty; hydrate it from the loaded legacy state */
+          vomm_hydrate_from_state();
       }
   }
   g_timeout_add (0, preload_state_tick, NULL);

@@ -328,3 +328,95 @@ void vomm_predict(void) {
         g_debug("VOMM: Made predictions from %d contexts + global frequency", predictions_made);
     }
 }
+
+/* 
+ * Hydrate VOMM model from legacy Markov state 
+ * This allows VOMM to work immediately after restart by using the 
+ * persistent markov weights as a seed for the VOMM tree.
+ */
+void vomm_hydrate_from_state(void) {
+    if (!vomm_system.root) return;
+    
+    g_debug("VOMM: Hydrating from legacy Markov state...");
+    int hydrated_count = 0;
+    
+    GHashTableIter iter;
+    gpointer key, value;
+    
+    /* Iterate over all known executables */
+    g_hash_table_iter_init(&iter, state->exes);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+        preload_exe_t *exe = (preload_exe_t *)value;
+        if (!exe || !exe->markovs) continue;
+        
+        /* Ensure 'exe' exists in the root context */
+        vomm_node_t *root_ctx_exe = g_hash_table_lookup(vomm_system.root->children, exe->path);
+        
+        /* Iterate over all markovs involving this executable */
+        int i;
+        for (i = 0; i < exe->markovs->len; i++) {
+            preload_markov_t *mk = g_ptr_array_index(exe->markovs, i);
+            
+            /* Determine the "other" executable in the pair */
+            preload_exe_t *other = (mk->a == exe) ? mk->b : mk->a;
+            if (!other) continue;
+            
+            /* 
+             * Check transition A -> B
+             * In legacy markov:
+             * state 1 = A running, no B
+             * state 3 = A running, B running (transition from 1->3 means B started while A was running)
+             */
+            
+            int count = 0;
+            preload_exe_t *src = NULL;
+            preload_exe_t *dst = NULL;
+
+            /* Case 1: exe is A, other is B. We want A -> B (1 -> 3) */
+            if (mk->a == exe) {
+                 src = exe;
+                 dst = other;
+                 count = mk->weight[1][3];
+            } 
+            /* Case 2: exe is B, other is A. We want B -> A (2 -> 3) */
+            else {
+                 src = exe;
+                 dst = other;
+                 count = mk->weight[2][3];
+            }
+            
+            if (count > 0) {
+                 /* 
+                  * Add transition src -> dst to VOMM tree 
+                  * Root -> [src] -> [dst]
+                  */
+                 
+                 /* 1. Ensure src exists in Root children */
+                 vomm_node_t *src_node = g_hash_table_lookup(vomm_system.root->children, src->path);
+                 if (!src_node) {
+                     src_node = vomm_node_new(src, vomm_system.root);
+                     g_hash_table_insert(vomm_system.root->children, g_strdup(src->path), src_node);
+                 }
+                 
+                 /* 2. Ensure dst exists in src children (The Transition) */
+                 vomm_node_t *dst_node = g_hash_table_lookup(src_node->children, dst->path);
+                 if (!dst_node) {
+                     dst_node = vomm_node_new(dst, src_node);
+                     g_hash_table_insert(src_node->children, g_strdup(dst->path), dst_node);
+                 }
+                 
+                 /* 3. Add the count (hydrate) */
+                 /* Only add if it looks like it needs hydration (avoid double counting if called multiple times, though typically called once) */
+                 /* Since count is cumulative in markov, and we are just setting up, we can just ADD */
+                 /* But be careful not to over-inflate if we persist VOMM counts separately later. 
+                    For now VOMM isn't persisted, so this is safe. */
+                 dst_node->count += count;
+                 
+                 hydrated_count++;
+                 /* g_debug("VOMM: Hydrated %s -> %s (count=%d)", src->path, dst->path, count); */
+            }
+        }
+    }
+    
+    g_debug("VOMM: Hydration complete. Imported %d transitions.", hydrated_count);
+}
