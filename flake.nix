@@ -19,7 +19,7 @@
 
         preload-ng-bin = pkgs.stdenv.mkDerivation rec {
           pname = "preload-ng";
-          version = "0.6.6";
+          version = "0.6.7";
 
           src = ./bin;
 
@@ -54,15 +54,26 @@
 
         preload-ng-src = pkgs.stdenv.mkDerivation rec {
           pname = "preload-ng";
-          version = "0.6.6";
+          version = "0.6.7";
 
           src = ./preload-src;
 
           nativeBuildInputs = with pkgs; [
-            autoreconfHook
             pkg-config
           ];
           buildInputs = with pkgs; [ glib ];
+
+          installPhase = ''
+            runHook preInstall
+
+            # Install binary
+            install -Dm755 preload $out/bin/preload
+
+            # Install config
+            install -Dm644 preload.conf $out/etc/conf.d/preload.conf
+
+            runHook postInstall
+          '';
 
           meta = with pkgs.lib; {
             description = "Adaptive readahead daemon for Linux";
@@ -142,6 +153,9 @@
 
             # Path prefixes for executables
             exeprefix = ${cfg.settings.exePrefix}
+
+            # Prediction algorithm
+            prediction_algorithm = ${cfg.settings.predictionAlgorithm}
 
             # Number of parallel readahead processes
             processes = ${toString cfg.settings.processes}
@@ -264,6 +278,19 @@
                 '';
               };
 
+              predictionAlgorithm = lib.mkOption {
+                type = lib.types.enum [
+                  "Markov"
+                  "VOMM"
+                ];
+                default = "VOMM";
+                description = ''
+                  The prediction algorithm to use.
+                  "Markov" = Classic Markov chain prediction.
+                  "VOMM" = Variable Order Markov Model (experimental).
+                '';
+              };
+
               processes = lib.mkOption {
                 type = lib.types.int;
                 default = 30;
@@ -286,14 +313,16 @@
                   3 = SORT_BLOCK (most sophisticated, best for most filesystems)
                 '';
               };
+
             };
           };
 
           config = lib.mkIf cfg.enable {
             systemd.services.preload-ng = {
               description = "Preload-NG Daemon";
-              wantedBy = [ "multi-user.target" ];
+              wantedBy = [ "basic.target" ];
               after = [ "local-fs.target" ];
+              before = [ "systemd-user-sessions.service" ];
 
               serviceConfig = {
                 Type = "simple";

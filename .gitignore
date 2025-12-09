@@ -1,13 +1,16 @@
 # Build outputs
+*.d
 *.o
 *.a
 *.so
 *.la
 *.lo
 *.tar.gz
+preload.log
+preload.state
 
 # Autotools generated
-Makefile
+
 .deps/
 .libs/
 autom4te.cache/
@@ -25,7 +28,6 @@ libtool
 .*.swp
 
 # Core dumps
-core
 core.*
 vgcore.*
 
@@ -36,11 +38,12 @@ vgcore.*
 
 # Debug
 *.dSYM/
+dev_mingas
 
 # OS
 .DS_Store
 Thumbs.db
-core
 
 # env
 .flox
+.coderabbit.yaml
