@@ -59,10 +59,21 @@
           src = ./preload-src;
 
           nativeBuildInputs = with pkgs; [
-            autoreconfHook
             pkg-config
           ];
           buildInputs = with pkgs; [ glib ];
+
+          installPhase = ''
+            runHook preInstall
+
+            # Install binary
+            install -Dm755 preload $out/bin/preload
+
+            # Install config
+            install -Dm644 preload.conf $out/etc/conf.d/preload.conf
+
+            runHook postInstall
+          '';
 
           meta = with pkgs.lib; {
             description = "Adaptive readahead daemon for Linux";
