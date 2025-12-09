@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 INSTALL_BIN="/usr/local/sbin"
-INSTALL_CONF="/usr/local/etc"
+INSTALL_CONF="/etc"
 VAR_LIB="/usr/local/var/lib/preload"
 SYSTEMD_DIR="/etc/systemd/system"
 OPENRC_DIR="/etc/init.d"
