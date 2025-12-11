@@ -60,6 +60,7 @@ run_preload() {
     print_info "Log:    $LOG_FILE"
     print_info "State:  $STATE_FILE"
     print_info "Mode:   Foreground"
+    print_info "Command: $BINARY -f -c $CONF_FILE -l $LOG_FILE -s $STATE_FILE -d"
     echo ""
 
     # Executing binary
@@ -73,6 +74,7 @@ run_preload() {
         -l "$LOG_FILE" \
         -s "$STATE_FILE" \
         -d
+
 }
 
 # Main
