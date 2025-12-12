@@ -51,13 +51,13 @@ gboolean exe_is_running(preload_exe_t *exe);
 /* Exe functions */
 preload_exe_t * preload_exe_new (const char *path, gboolean running, GPtrArray *exemaps);
 void preload_exe_free (preload_exe_t *exe);
-preload_exemap_t * preload_exe_map_new (preload_exe_t *exe, preload_map_t *map);
+preload_exemap_t * preload_exemap_new_from_exe (preload_exe_t *exe, preload_map_t *map);
 
 /* Exemap functions */
 preload_exemap_t * preload_exemap_new (preload_map_t *map);
 void preload_exemap_free (gpointer data, gpointer user_data);
-/* Iterates over all exemaps in the global state */
-void preload_exemap_foreach (GHFunc func, gpointer user_data);
+/* Iterates over exemaps for a specific exe */
+void preload_exe_foreach_exemap (preload_exe_t *exe, GFunc func, gpointer user_data);
 
 /* Registration */
 void preload_state_register_exe (preload_exe_t *exe, gboolean create_markovs);

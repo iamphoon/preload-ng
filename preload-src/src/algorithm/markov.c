@@ -48,7 +48,7 @@ preload_markov_new (preload_exe_t *a, preload_exe_t *b, gboolean initialize)
   g_return_val_if_fail (b, NULL);
   g_return_val_if_fail (a != b, NULL);
 
-  markov = g_malloc (sizeof (*markov));
+  markov = g_malloc0 (sizeof (*markov));
   markov->a = a;
   markov->b = b;
   if (initialize) {
@@ -66,7 +66,7 @@ preload_markov_new (preload_exe_t *a, preload_exe_t *b, gboolean initialize)
       if (a->change_timestamp > markov->change_timestamp)
         markov->state ^= 1;
       
-      /* Reconstruct historical state: flip bit 2 if B changed after markov->change_timestamp */
+      /* Reconstruct historical state: flip bit 1 if B changed after markov->change_timestamp */
       if (b->change_timestamp > markov->change_timestamp)
         markov->state ^= 2;
     }
@@ -116,6 +116,9 @@ preload_markov_free (preload_markov_t *markov, preload_exe_t *from)
     g_assert (markov->a == from || markov->b == from);
     other = markov_other_exe (markov, from);
     g_ptr_array_remove_fast (other->markovs, markov);
+    /* Note: markov is NOT removed from from->markovs.
+     * Caller is responsible for removing it from from->markovs.
+     * This allows the caller to iterate over from->markovs while freeing them. */
   } else {
     g_ptr_array_remove_fast (markov->a->markovs, markov);
     g_ptr_array_remove_fast (markov->b->markovs, markov);

@@ -38,7 +38,7 @@ static GHashTable *new_exes;
 /* for every process, check whether we know what it is, and add it
  * to appropriate list for further analysis. */
 static void
-running_process_callback (gpointer key, gpointer G_GNUC_UNUSED value, gpointer G_GNUC_UNUSED user_data)
+running_process_callback (gpointer key, gpointer value, gpointer G_GNUC_UNUSED user_data)
 {
   pid_t pid = (pid_t)GPOINTER_TO_INT(key);
   const char *path = (const char *)value;
@@ -169,6 +169,20 @@ preload_spy_scan (gpointer data)
 {
   /* scan processes, see which exes started running, which are not running
    * anymore, and what new exes are around. */
+
+  /* Prevent leaks if scan called repeatedly without update_model */
+  if (state_changed_exes) {
+    g_slist_free (state_changed_exes);
+    state_changed_exes = NULL;
+  }
+  if (new_running_exes) {
+    g_slist_free (new_running_exes);
+    new_running_exes = NULL;
+  }
+  if (new_exes) {
+    g_hash_table_destroy (new_exes);
+    new_exes = NULL;
+  }
 
   state_changed_exes = new_running_exes = NULL;
   new_exes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);

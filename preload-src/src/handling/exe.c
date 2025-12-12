@@ -32,6 +32,8 @@
 gboolean
 exe_is_running(preload_exe_t *exe)
 {
+  if (!state)
+    return FALSE;
   return exe->running_timestamp >= state->last_running_timestamp;
 }
 
@@ -63,33 +65,11 @@ preload_exemap_free (gpointer data, gpointer G_GNUC_UNUSED user_data)
 }
 
 
-typedef struct _exemap_foreach_context_t
-{
-  preload_exe_t *exe;
-  GHFunc func;
-  gpointer data;
-} exemap_foreach_context_t;
-
-static void
-exe_exemap_callback (preload_exemap_t *exemap, exemap_foreach_context_t *ctx)
-{
-  ctx->func (exemap, ctx->exe, ctx->data);
-}
-
-static void
-exe_exemap_foreach (gpointer G_GNUC_UNUSED key, preload_exe_t *exe, exemap_foreach_context_t *ctx)
-{
-  ctx->exe = exe;
-  g_ptr_array_foreach (exe->exemaps, (GFunc)exe_exemap_callback, ctx);
-}
-
 void
-preload_exemap_foreach (GHFunc func, gpointer user_data)
+preload_exe_foreach_exemap (preload_exe_t *exe, GFunc func, gpointer user_data)
 {
-  exemap_foreach_context_t ctx;
-  ctx.func = func;
-  ctx.data = user_data;
-  g_hash_table_foreach (state->exes, (GHFunc)exe_exemap_foreach, &ctx);
+  g_return_if_fail (exe);
+  g_ptr_array_foreach (exe->exemaps, func, user_data);
 }
 
 
@@ -151,7 +131,7 @@ preload_exe_free (preload_exe_t *exe)
 
 
 preload_exemap_t *
-preload_exe_map_new (preload_exe_t *exe, preload_map_t *map)
+preload_exemap_new_from_exe (preload_exe_t *exe, preload_map_t *map)
 {
   preload_exemap_t *exemap;
 
@@ -176,11 +156,14 @@ shift_preload_markov_new (gpointer G_GNUC_UNUSED key, preload_exe_t *a, preload_
 void
 preload_state_register_exe (preload_exe_t *exe, gboolean create_markovs)
 {
+  g_return_if_fail (state);
+  g_return_if_fail (state->exes);
+
   g_return_if_fail (exe && exe->path);
   g_return_if_fail (!g_hash_table_lookup (state->exes, exe->path));
 
   exe->seq = ++(state->exe_seq);
-  if (create_markovs) {
+  if (create_markovs && state->exes) {
     g_hash_table_foreach (state->exes, (GHFunc)shift_preload_markov_new, exe);
   }
   g_hash_table_insert (state->exes, exe->path, exe);
@@ -190,6 +173,7 @@ preload_state_register_exe (preload_exe_t *exe, gboolean create_markovs)
 void
 preload_state_unregister_exe (preload_exe_t *exe)
 {
+  g_return_if_fail (state && state->exes);
   g_return_if_fail (exe && exe->path);
   g_return_if_fail (g_hash_table_lookup (state->exes, exe->path));
 

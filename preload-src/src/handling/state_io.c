@@ -22,6 +22,7 @@
  */
 
 #include "common.h"
+#include <glib/gstdio.h>
 #include "state_io.h"
 #include "state.h"
 #include "map.h"
@@ -29,11 +30,7 @@
 #include "markov.h"
 #include "log.h"
 
-/* horrible hack to shut the double-declaration of g_snprintf up may
- * be removed after development is done.  pretty harmless though. */
-#define __G_PRINTF_H__
 
-#include <glib/gstdio.h>
 
 
 #define TAG_PRELOAD     "PRELOAD"
@@ -209,7 +206,7 @@ read_exemap (read_context_t *rc)
     return;
   }
 
-  exemap = preload_exe_map_new (exe, map);
+  exemap = preload_exemap_new_from_exe (exe, map);
   exemap->prob = prob;
 }
 
@@ -513,14 +510,26 @@ write_exe (gpointer G_GNUC_UNUSED key, preload_exe_t *exe, write_context_t *wc)
 
 
 static void
-write_exemap (preload_exemap_t *exemap, preload_exe_t *exe, write_context_t *wc)
+write_exemap (gpointer data, gpointer user_data)
 {
+  preload_exemap_t *exemap = (preload_exemap_t *)data;
+  struct { write_context_t *wc; preload_exe_t *exe; } *ctx = user_data;
+  write_context_t *wc = ctx->wc;
+  preload_exe_t *exe = ctx->exe;
+
   write_tag (TAG_EXEMAP);
   g_string_printf (wc->line,
 		   "%" G_GINT64_FORMAT "\t%" G_GINT64_FORMAT "\t%lg",
 		   exe->seq, exemap->map->seq, exemap->prob);
   write_string (wc->line);
   write_ln ();
+}
+
+static void
+write_exe_exemaps(gpointer G_GNUC_UNUSED key, preload_exe_t *exe, write_context_t *wc)
+{
+    struct { write_context_t *wc; preload_exe_t *exe; } ctx = { wc, exe };
+    preload_exe_foreach_exemap(exe, (GFunc)write_exemap, &ctx);
 }
 
 
@@ -567,7 +576,7 @@ write_state (GIOChannel *f)
   if (!wc.err) g_hash_table_foreach   (state->maps, (GHFunc)write_map, &wc);
   if (!wc.err) g_hash_table_foreach   (state->bad_exes, (GHFunc)write_badexe, &wc);
   if (!wc.err) g_hash_table_foreach   (state->exes, (GHFunc)write_exe, &wc);
-  if (!wc.err) preload_exemap_foreach ((GHFunc)write_exemap, &wc);
+  if (!wc.err) g_hash_table_foreach   (state->exes, (GHFunc)write_exe_exemaps, &wc);
   if (!wc.err) preload_markov_foreach ((GFunc)write_markov, &wc);
 
   g_string_free (wc.line, TRUE);
@@ -597,7 +606,14 @@ preload_state_write_file (const char *statefile)
   tmpfile = g_strconcat (statefile, ".tmp", NULL);
   g_debug ("to be honest, saving state to %s", tmpfile);
 
-  fd = open (tmpfile, O_WRONLY | O_CREAT | O_TRUNC, 0660);
+  /* Open with O_EXCL to prevent symlink attacks */
+  fd = open (tmpfile, O_WRONLY | O_CREAT | O_EXCL, 0660);
+  if (fd < 0 && errno == EEXIST) {
+    /* Stale tmpfile? Unlink and try once more */
+    if (g_unlink (tmpfile) == 0)
+      fd = open (tmpfile, O_WRONLY | O_CREAT | O_EXCL, 0660);
+  }
+
   if (0 > fd) {
     errmsg = g_strdup_printf ("cannot open %s for writing: %s", tmpfile, strerror (errno));
     g_free (tmpfile);

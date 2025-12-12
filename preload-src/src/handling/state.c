@@ -35,6 +35,8 @@
 
 /* Global state singleton */
 preload_state_t state[1];
+static char *autosave_statefile;
+
 
 
 /* Callback to set running processes after state load */
@@ -133,6 +135,7 @@ preload_state_free (void)
   state->running_exes = NULL;
   g_ptr_array_free (state->maps_arr, TRUE);
   vomm_cleanup();
+  g_free (autosave_statefile);
   g_debug ("freeing state memory done");
 }
 
@@ -201,7 +204,6 @@ preload_state_tick (gpointer data)
 
 
 
-static const char *autosave_statefile;
 
 
 static gboolean
@@ -227,7 +229,7 @@ preload_state_run (const char *statefile)
   }
   g_timeout_add (0, preload_state_tick, NULL);
   if (statefile) {
-    autosave_statefile = statefile;
+    autosave_statefile = g_strdup (statefile);
     g_timeout_add_seconds (conf->system.autosave, (GSourceFunc)preload_state_autosave, NULL);
   }
 }

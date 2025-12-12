@@ -57,8 +57,8 @@ static void test_init_state(void)
     state->last_running_timestamp = 90;
     state->exes = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, (GDestroyNotify)preload_exe_free);
     state->bad_exes = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-    state->maps = g_hash_table_new_full((GHashFunc)preload_map_hash, (GEqualFunc)preload_map_equal, NULL, (GDestroyNotify)preload_map_unref);
-    state->maps_arr = g_ptr_array_new_with_free_func((GDestroyNotify)preload_map_unref);
+    state->maps = g_hash_table_new_full((GHashFunc)preload_map_hash, (GEqualFunc)preload_map_equal, NULL, NULL);
+    state->maps_arr = g_ptr_array_new();
 }
 
 static void test_cleanup_state(void)
