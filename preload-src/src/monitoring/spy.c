@@ -127,7 +127,6 @@ new_exe_callback (gpointer key, gpointer value, gpointer G_GNUC_UNUSED user_data
   }
 }
 
-
 static void
 running_markov_inc_time (gpointer data, gpointer user_data)
 {
@@ -148,7 +147,6 @@ running_exe_inc_time (gpointer G_GNUC_UNUSED key, gpointer value, gpointer user_
     exe->time += time;
 }
 
-
 static void
 exe_changed_callback (gpointer data, gpointer G_GNUC_UNUSED user_data)
 {
@@ -157,12 +155,6 @@ exe_changed_callback (gpointer data, gpointer G_GNUC_UNUSED user_data)
   exe->change_timestamp = state->time;
   g_ptr_array_foreach (exe->markovs, (GFunc)preload_markov_state_changed, NULL);
 }
-
-
-
-
-
-
 
 void
 preload_spy_scan (gpointer data)
@@ -196,6 +188,7 @@ preload_spy_scan (gpointer data)
 
   g_slist_free (state->running_exes);
   state->running_exes = new_running_exes;
+  new_running_exes = NULL;  /* Break alias to prevent use-after-free on next scan */
 }
 
 /* update_model is run after scan, after some delay (half a cycle) */
@@ -208,10 +201,12 @@ preload_spy_update_model (gpointer data)
   /* register newly discovered exes */
   g_hash_table_foreach (new_exes, (GHFunc)new_exe_callback, data);
   g_hash_table_destroy (new_exes);
+  new_exes = NULL;  /* Prevent double-free on next scan */
 
   /* and adjust states for those changing */
   g_slist_foreach (state_changed_exes, (GFunc)exe_changed_callback, data);
   g_slist_free (state_changed_exes);
+  state_changed_exes = NULL;  /* Prevent double-free on next scan */
 
   /* do some accounting */
   period = (int)(state->time - state->last_accounting_timestamp);
