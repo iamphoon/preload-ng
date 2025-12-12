@@ -11,10 +11,30 @@
 
 #include <glib.h>
 
-/* Read state from file, returns NULL on success or error message on failure */
+/**
+ * preload_state_read_file:
+ * @statefile: Path to the state file. Must not be NULL.
+ *
+ * Reads the preload state from the specified file.
+ *
+ * Returns: NULL on success. On failure, returns a dynamically allocated
+ * error message that must be freed by the caller using g_free().
+ *
+ * Thread-safety: Not thread-safe.
+ */
 char * preload_state_read_file (const char *statefile);
 
-/* Write state to file, returns NULL on success or error message on failure */
+/**
+ * preload_state_write_file:
+ * @statefile: Path to the state file. Must not be NULL.
+ *
+ * Writes the current preload state to the specified file.
+ *
+ * Returns: NULL on success. On failure, returns a dynamically allocated
+ * error message that must be freed by the caller using g_free().
+ *
+ * Thread-safety: Not thread-safe.
+ */
 char * preload_state_write_file (const char *statefile);
 
 #endif /* STATE_IO_H */

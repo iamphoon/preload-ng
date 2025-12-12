@@ -9,6 +9,7 @@
 #ifndef EXE_H
 #define EXE_H
 
+#include <time.h>
 #include <glib.h>
 #include "map.h"
 
@@ -30,17 +31,17 @@ typedef struct _preload_exemap_t
 typedef struct _preload_exe_t
 {
   char *path; /* absolute path of the executable. */
-  int time; /* total time that this has been running, ever. */
-  int update_time; /* last time it was probed. */
+  time_t time; /* total time that this has been running, ever. */
+  time_t update_time; /* last time it was probed. */
   GPtrArray *markovs; /* set of markov chains with other exes. */
   GPtrArray *exemaps; /* set of exemap structures. */
 
   /* runtime: */
   size_t size; /* sum of the size of the maps, in bytes. */
-  int running_timestamp; /* last time it was running. */
-  int change_timestamp; /* time started/stopped running. */
+  time_t running_timestamp; /* last time it was running. */
+  time_t change_timestamp; /* time started/stopped running. */
   double lnprob; /* log-probability of NOT being needed in next period. */
-  int seq; /* unique exe sequence number. */
+  gint64 seq; /* unique exe sequence number. */
 } preload_exe_t;
 
 /* Check if executable is currently running (implemented in exe.c) */
@@ -55,6 +56,7 @@ preload_exemap_t * preload_exe_map_new (preload_exe_t *exe, preload_map_t *map);
 /* Exemap functions */
 preload_exemap_t * preload_exemap_new (preload_map_t *map);
 void preload_exemap_free (gpointer data, gpointer user_data);
+/* Iterates over all exemaps in the global state */
 void preload_exemap_foreach (GHFunc func, gpointer user_data);
 
 /* Registration */

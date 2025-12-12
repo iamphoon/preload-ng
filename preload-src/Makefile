@@ -24,6 +24,7 @@ TARGET = preload
 # Test files
 TEST_SRCS = src/tests/test_main.c src/tests/test_markov.c src/tests/test_vomm.c src/tests/test_state_io.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
+TEST_DEPS = $(TEST_SRCS:.c=.d)
 # Core objects needed for tests (exclude daemon entry point)
 TEST_CORE_OBJS = $(filter-out src/daemon/preload.o,$(OBJS))
 TEST_TARGET = test_runner
@@ -54,4 +55,4 @@ clean:
 	rm -f $(TEST_OBJS) $(TEST_TARGET)
 	rm -f src/tests/*.d
 
--include $(DEPS)
+-include $(DEPS) $(TEST_DEPS)

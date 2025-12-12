@@ -19,7 +19,7 @@ typedef struct _preload_state_t preload_state_t;
 typedef struct _preload_markov_t
 {
   preload_exe_t *a, *b; /* involved exes. */
-  int time; /* total time that both exes have been running simultaneously (state 3). */
+  gint64 time; /* total time that both exes have been running simultaneously (state 3). */
   double time_to_leave[4]; /* mean time to leave each state. */
   int weight[4][4]; /* number of times we've gone from state i to state j.
 		     * weight[i][i] is the number of times we have left
@@ -32,7 +32,7 @@ typedef struct _preload_markov_t
    * state 3:    a,    b.
    */
   int state; /* current state */
-  int change_timestamp; /* time entered the current state. */
+  gint64 change_timestamp; /* time entered the current state. */
 } preload_markov_t;
 
 /* Macros - need access to exe_is_running which depends on state */

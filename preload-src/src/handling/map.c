@@ -85,6 +85,7 @@ preload_map_free (preload_map_t *map)
 void
 preload_map_ref (preload_map_t *map)
 {
+  if (map == NULL) return;
   if (!map->refcount)
     preload_state_register_map (map);
   map->refcount++;
@@ -129,5 +130,19 @@ preload_map_hash (preload_map_t *map)
 gboolean
 preload_map_equal (preload_map_t *a, preload_map_t *b)
 {
-  return a->offset == b->offset && a->length == b->length && !strcmp (a->path, b->path);
+  if (a == b)
+    return TRUE;
+  if (!a || !b)
+    return FALSE;
+
+  if (a->offset != b->offset || a->length != b->length)
+    return FALSE;
+
+  if (a->path == b->path)
+    return TRUE;
+
+  if (!a->path || !b->path)
+    return FALSE;
+
+  return !strcmp (a->path, b->path);
 }

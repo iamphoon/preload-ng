@@ -6,9 +6,10 @@
  * This file is part of preload.
  */
 
-#ifndef MAP_H
-#define MAP_H
+#ifndef PRELOAD_HANDLING_MAP_H
+#define PRELOAD_HANDLING_MAP_H
 
+#include <time.h>
 #include <glib.h>
 
 /* Forward declaration */
@@ -21,12 +22,12 @@ typedef struct _preload_map_t
   char *path; /* absolute path of the mapped file. */
   size_t offset; /* in bytes. */
   size_t length; /* in bytes. */
-  int update_time; /* last time it was probed. */
+  time_t update_time; /* last time it was probed. */
 
   /* runtime: */
   int refcount; /* number of exes linking to this. */
   double lnprob; /* log-probability of NOT being needed in next period. */
-  int seq; /* unique map sequence number. */
+  gint64 seq; /* unique map sequence number. */
   int block; /* on-disk location of the start of the map. */
   int priv; /* for private local use of functions. */
 } preload_map_t;
@@ -43,4 +44,4 @@ size_t preload_map_get_size (preload_map_t *map);
 guint preload_map_hash (preload_map_t *map);
 gboolean preload_map_equal (preload_map_t *a, preload_map_t *b);
 
-#endif /* MAP_H */
+#endif /* PRELOAD_HANDLING_MAP_H */

@@ -1,4 +1,4 @@
-/* spy.c - preload data acquisation routines
+/* spy.c - preload data acquisition routines
  *
  * Copyright (C) 2005  Behdad Esfahbod
  *
@@ -200,7 +200,7 @@ preload_spy_update_model (gpointer data)
   g_slist_free (state_changed_exes);
 
   /* do some accounting */
-  period = state->time - state->last_accounting_timestamp;
+  period = (int)(state->time - state->last_accounting_timestamp);
   g_hash_table_foreach (state->exes, (GHFunc)running_exe_inc_time, GINT_TO_POINTER (period));
   preload_markov_foreach ((GFunc)running_markov_inc_time, GINT_TO_POINTER (period));
   state->last_accounting_timestamp = state->time;

@@ -69,14 +69,15 @@ static void
 read_map (read_context_t *rc)
 {
   preload_map_t *map;
-  int update_time;
-  int i, expansion;
+  gint64 i;
+  int expansion;
   long offset, length;
   char *path;
+  long long t_update_time;
 
   if (6 > sscanf (rc->line,
-		  "%d %d %lu %lu %d %"FILELENSTR"s",
-		  &i, &update_time, &offset, &length, &expansion, rc->filebuf)) {
+		  "%" G_GINT64_FORMAT " %lld %lu %lu %d %"FILELENSTR"s",
+		  &i, &t_update_time, &offset, &length, &expansion, rc->filebuf)) {
     rc->errmsg = READ_SYNTAX_ERROR;
     return;
   }
@@ -87,7 +88,7 @@ read_map (read_context_t *rc)
 
   map = preload_map_new (path, offset, length);
   g_free (path);
-  if (g_hash_table_lookup (rc->maps, GINT_TO_POINTER (i))) {
+  if (g_hash_table_lookup (rc->maps, (gpointer)i)) {
     rc->errmsg = READ_DUPLICATE_INDEX_ERROR;
     goto err;
   }
@@ -96,9 +97,9 @@ read_map (read_context_t *rc)
     goto err;
   }
 
-  map->update_time = update_time;
+  map->update_time = (time_t)t_update_time;
   preload_map_ref (map);
-  g_hash_table_insert (rc->maps, GINT_TO_POINTER (i), map);
+  g_hash_table_insert (rc->maps, (gpointer)i, map);
   return;
 
 err:
@@ -139,13 +140,21 @@ static void
 read_exe (read_context_t *rc)
 {
   preload_exe_t *exe;
-  int update_time, time;
-  int i, expansion;
+
+  gint64 i;
+  int expansion;
   char *path;
 
+  // Assuming file format uses int or long for time_t, we need to read it into a compatible type or cast
+  // Standardizing on reading as long long (gint64) for safety if format is consistent with 64-bit upgrades
+  // However, existing file format uses %d. We should update to read larger integers if we expect them.
+  // For now, let's assume we want to read them as integers but store in time_t, or parse into a temp 64-bit var.
+  // Let's use temporary variables for scanning to be safe against size mismatches.
+  long long t_update_time, t_time;
+
   if (5 > sscanf (rc->line,
-		  "%d %d %d %d %"FILELENSTR"s",
-		  &i, &update_time, &time, &expansion, rc->filebuf)) {
+		  "%" G_GINT64_FORMAT " %lld %lld %d %"FILELENSTR"s",
+		  &i, &t_update_time, &t_time, &expansion, rc->filebuf)) {
     rc->errmsg = READ_SYNTAX_ERROR;
     return;
   }
@@ -157,7 +166,7 @@ read_exe (read_context_t *rc)
   exe = preload_exe_new (path, FALSE, NULL);
   exe->change_timestamp = -1;
   g_free (path);
-  if (g_hash_table_lookup (rc->exes, GINT_TO_POINTER (i))) {
+  if (g_hash_table_lookup (rc->exes, (gpointer)i)) {
     rc->errmsg = READ_DUPLICATE_INDEX_ERROR;
     goto err;
   }
@@ -166,9 +175,9 @@ read_exe (read_context_t *rc)
     goto err;
   }
 
-  exe->update_time = update_time;
-  exe->time = time;
-  g_hash_table_insert (rc->exes, GINT_TO_POINTER (i), exe);
+  exe->update_time = (time_t)t_update_time;
+  exe->time = (time_t)t_time;
+  g_hash_table_insert (rc->exes, (gpointer)i, exe);
   preload_state_register_exe (exe, FALSE);
   return;
 
@@ -180,21 +189,21 @@ err:
 static void
 read_exemap (read_context_t *rc)
 {
-  int iexe, imap;
+  gint64 iexe, imap;
   preload_exe_t *exe;
   preload_map_t *map;
   preload_exemap_t *exemap;
   double prob;
 
   if (3 > sscanf (rc->line,
-		  "%d %d %lg",
+		  "%" G_GINT64_FORMAT " %" G_GINT64_FORMAT " %lg",
 		  &iexe, &imap, &prob)) {
     rc->errmsg = READ_SYNTAX_ERROR;
     return;
   }
 
-  exe = g_hash_table_lookup (rc->exes, GINT_TO_POINTER (iexe));
-  map = g_hash_table_lookup (rc->maps, GINT_TO_POINTER (imap));
+  exe = g_hash_table_lookup (rc->exes, (gpointer)iexe);
+  map = g_hash_table_lookup (rc->maps, (gpointer)imap);
   if (!exe || !map) {
     rc->errmsg = READ_INDEX_ERROR;
     return;
@@ -208,23 +217,24 @@ read_exemap (read_context_t *rc)
 static void
 read_markov (read_context_t *rc)
 {
-  int time, markov_state, state_new;
-  int ia, ib;
+  int markov_state, state_new;
+  gint64 time;
+  gint64 ia, ib;
   preload_exe_t *a, *b;
   preload_markov_t *markov;
   int n;
 
   n = 0;
   if (3 > sscanf (rc->line,
-		  "%d %d %d%n",
+		  "%" G_GINT64_FORMAT " %" G_GINT64_FORMAT " %" G_GINT64_FORMAT "%n",
 		  &ia, &ib, &time, &n)) {
     rc->errmsg = READ_SYNTAX_ERROR;
     return;
   }
   rc->line += n;
 
-  a = g_hash_table_lookup (rc->exes, GINT_TO_POINTER (ia));
-  b = g_hash_table_lookup (rc->exes, GINT_TO_POINTER (ib));
+  a = g_hash_table_lookup (rc->exes, (gpointer)ia);
+  b = g_hash_table_lookup (rc->exes, (gpointer)ib);
   if (!a || !b) {
     rc->errmsg = READ_INDEX_ERROR;
     return;
@@ -449,8 +459,8 @@ write_map (preload_map_t *map, gpointer G_GNUC_UNUSED data, write_context_t *wc)
 
   write_tag (TAG_MAP);
   g_string_printf (wc->line,
-		   "%d\t%d\t%lu\t%lu\t%d\t%s",
-		   map->seq, map->update_time, (long)map->offset, (long)map->length, -1/*expansion*/, uri);
+		   "%" G_GINT64_FORMAT "\t%lld\t%lu\t%lu\t%d\t%s",
+		   map->seq, (long long)map->update_time, (long)map->offset, (long)map->length, -1/*expansion*/, uri);
   write_string (wc->line);
   write_ln ();
 
@@ -493,8 +503,8 @@ write_exe (gpointer G_GNUC_UNUSED key, preload_exe_t *exe, write_context_t *wc)
 
   write_tag (TAG_EXE);
   g_string_printf (wc->line,
-		   "%d\t%d\t%d\t%d\t%s",
-		   exe->seq, exe->update_time, exe->time, -1/*expansion*/, uri);
+		   "%" G_GINT64_FORMAT "\t%lld\t%lld\t%d\t%s",
+		   exe->seq, (long long)exe->update_time, (long long)exe->time, -1/*expansion*/, uri);
   write_string (wc->line);
   write_ln ();
 
@@ -507,7 +517,7 @@ write_exemap (preload_exemap_t *exemap, preload_exe_t *exe, write_context_t *wc)
 {
   write_tag (TAG_EXEMAP);
   g_string_printf (wc->line,
-		   "%d\t%d\t%lg",
+		   "%" G_GINT64_FORMAT "\t%" G_GINT64_FORMAT "\t%lg",
 		   exe->seq, exemap->map->seq, exemap->prob);
   write_string (wc->line);
   write_ln ();
@@ -521,7 +531,7 @@ write_markov (preload_markov_t *markov, write_context_t *wc)
 
   write_tag (TAG_MARKOV);
   g_string_printf (wc->line,
-		   "%d\t%d\t%d",
+		   "%" G_GINT64_FORMAT "\t%" G_GINT64_FORMAT "\t%" G_GINT64_FORMAT,
 		   markov->a->seq, markov->b->seq, markov->time);
   write_string (wc->line);
 

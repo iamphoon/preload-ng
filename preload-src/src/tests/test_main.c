@@ -31,8 +31,18 @@
 } while(0)
 
 #define ASSERT_STR_EQ(a, b) do { \
-    if (strcmp((a), (b)) != 0) { \
-        fprintf(stderr, "  FAIL: %s:%d: \"%s\" != \"%s\"\n", __FILE__, __LINE__, (a), (b)); \
+    const char *_val_a = (const char *)(a); \
+    const char *_val_b = (const char *)(b); \
+    if (_val_a == NULL && _val_b == NULL) { \
+        /* equal */ \
+    } else if (_val_a == NULL) { \
+        fprintf(stderr, "  FAIL: %s:%d: %s is NULL\n", __FILE__, __LINE__, #a); \
+        return TEST_FAIL; \
+    } else if (_val_b == NULL) { \
+        fprintf(stderr, "  FAIL: %s:%d: %s is NULL\n", __FILE__, __LINE__, #b); \
+        return TEST_FAIL; \
+    } else if (strcmp(_val_a, _val_b) != 0) { \
+        fprintf(stderr, "  FAIL: %s:%d: \"%s\" != \"%s\"\n", __FILE__, __LINE__, _val_a, _val_b); \
         return TEST_FAIL; \
     } \
 } while(0)
@@ -64,8 +74,7 @@ extern int test_state_io_run(void);
 
 int main(int argc, char **argv)
 {
-    int total = 0;
-    int passed = 0;
+
     int failed = 0;
     
     (void)argc;

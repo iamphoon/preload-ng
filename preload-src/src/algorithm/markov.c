@@ -58,13 +58,17 @@ preload_markov_new (preload_exe_t *a, preload_exe_t *b, gboolean initialize)
     markov->change_timestamp = state->time;
     if (a->change_timestamp > 0 && b->change_timestamp > 0) {
       if (a->change_timestamp < state->time)
-	markov->change_timestamp = a->change_timestamp;
+        markov->change_timestamp = a->change_timestamp;
       if (b->change_timestamp < state->time && b->change_timestamp > markov->change_timestamp)
-	markov->change_timestamp = b->change_timestamp;
+        markov->change_timestamp = b->change_timestamp;
+      
+      /* Reconstruct historical state: flip bit 0 if A changed after markov->change_timestamp */
       if (a->change_timestamp > markov->change_timestamp)
-	markov->state ^= 1;
+        markov->state ^= 1;
+      
+      /* Reconstruct historical state: flip bit 2 if B changed after markov->change_timestamp */
       if (b->change_timestamp > markov->change_timestamp)
-	markov->state ^= 2;
+        markov->state ^= 2;
     }
 
     markov->time = 0;
@@ -159,7 +163,7 @@ double
 preload_markov_correlation (preload_markov_t *markov)
 {
   double correlation, numerator, denominator2;
-  int t, a, b, ab;
+  gint64 t, a, b, ab;
   
   t = state->time;
   a = markov->a->time;

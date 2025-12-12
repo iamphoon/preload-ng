@@ -57,8 +57,8 @@ static void test_init_state(void)
     state->last_running_timestamp = 90;
     state->exes = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, (GDestroyNotify)preload_exe_free);
     state->bad_exes = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-    state->maps = g_hash_table_new((GHashFunc)preload_map_hash, (GEqualFunc)preload_map_equal);
-    state->maps_arr = g_ptr_array_new();
+    state->maps = g_hash_table_new_full((GHashFunc)preload_map_hash, (GEqualFunc)preload_map_equal, NULL, (GDestroyNotify)preload_map_unref);
+    state->maps_arr = g_ptr_array_new_with_free_func((GDestroyNotify)preload_map_unref);
 }
 
 static void test_cleanup_state(void)
@@ -186,7 +186,10 @@ static int test_state_io_format_compatibility(void)
     gsize length = 0;
     GError *err = NULL;
     gboolean ok = g_file_get_contents(tmpfile, &contents, &length, &err);
-    ASSERT_TRUE(ok);
+    if (!ok) {
+        g_clear_error(&err);
+        return TEST_FAIL;
+    }
     
     /* Verify format: should start with PRELOAD tag */
     ASSERT_TRUE(g_str_has_prefix(contents, "PRELOAD\t"));

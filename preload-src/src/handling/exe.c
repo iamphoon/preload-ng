@@ -195,19 +195,5 @@ preload_state_unregister_exe (preload_exe_t *exe)
 
   g_hash_table_steal (state->exes, exe->path);
 
-  if (exe->exemaps) {
-    g_ptr_array_foreach (exe->exemaps, (GFunc)preload_exemap_free, NULL);
-    g_ptr_array_free (exe->exemaps, TRUE);
-    exe->exemaps = NULL;
-  }
-  if (exe->markovs) {
-    g_ptr_array_foreach (exe->markovs, (GFunc)preload_markov_free, exe);
-    g_ptr_array_free (exe->markovs, TRUE);
-    exe->markovs = NULL;
-  }
-  if (exe->path) {
-    g_free (exe->path);
-    exe->path = NULL;
-  }
-  g_free (exe);
+  preload_exe_free (exe);
 }

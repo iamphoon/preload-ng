@@ -9,6 +9,8 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <time.h>
+#include <stdint.h>
 #include <glib.h>
 #include "proc.h"
 #include "map.h"
@@ -43,17 +45,17 @@ typedef struct _preload_state_t
   GSList *running_exes; /* set of exe structs currently running. */
   GPtrArray *maps_arr; /* set of maps again, in a sortable array. */
 
-  int map_seq; /* increasing sequence of unique numbers to assign to maps. */
-  int exe_seq; /* increasing sequence of unique numbers to assign to exes. */
+  gint64 map_seq; /* increasing sequence of unique numbers to assign to maps. */
+  gint64 exe_seq; /* increasing sequence of unique numbers to assign to exes. */
 
-  int last_running_timestamp; /* last time we checked for processes running. */
-  int last_accounting_timestamp; /* last time we did accounting on running times, etc. */
+  time_t last_running_timestamp; /* last time we checked for processes running. */
+  time_t last_accounting_timestamp; /* last time we did accounting on running times, etc. */
 
   gboolean dirty; /* whether new scan has been performed since last save */
   gboolean model_dirty; /* whether new scan has been performed but no model update yet */
 
   preload_memory_t memstat; /* system memory stats. */
-  int memstat_timestamp; /* last time we updated memory stats. */
+  time_t memstat_timestamp; /* last time we updated memory stats. */
 
 } preload_state_t;
 

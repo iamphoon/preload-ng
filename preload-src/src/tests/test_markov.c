@@ -40,6 +40,13 @@
     } \
 } while(0)
 
+#define ASSERT_DOUBLE_EQ(a,b,eps) do { \
+    if (fabs((a)-(b)) > (eps)) { \
+        fprintf(stderr, "  FAIL: %s:%d: |%g - %g| > %g\n", __FILE__, __LINE__, (double)(a), (double)(b), (double)(eps)); \
+        return TEST_FAIL; \
+    } \
+} while(0)
+
 
 /* Initialize minimal state for tests */
 static void test_init_state(void)
@@ -161,7 +168,7 @@ static int test_markov_correlation_zero(void)
     markov->time = 0;
     
     double corr = preload_markov_correlation(markov);
-    ASSERT_EQ(corr, 0.0);
+    ASSERT_DOUBLE_EQ(corr, 0.0, 1e-9);
     
     /* Cleanup */
     preload_markov_free(markov, NULL);
