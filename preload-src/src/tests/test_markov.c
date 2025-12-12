@@ -180,6 +180,145 @@ static int test_markov_correlation_zero(void)
 }
 
 
+static int test_markov_correlation_full(void)
+{
+    test_init_state();
+    state->time = 1000;
+    
+    preload_exe_t *exe_a = preload_exe_new("/usr/bin/test_a", FALSE, NULL);
+    preload_exe_t *exe_b = preload_exe_new("/usr/bin/test_b", FALSE, NULL);
+    
+    preload_state_register_exe(exe_a, FALSE);
+    preload_state_register_exe(exe_b, FALSE);
+    
+    preload_markov_t *markov = preload_markov_new(exe_a, exe_b, TRUE);
+    
+    /* Both run all time -> perfect correlation */
+    exe_a->time = 1000;
+    exe_b->time = 1000;
+    markov->time = 1000;
+    
+    double corr = preload_markov_correlation(markov);
+    /* Should be 0 because variance is 0 when exactly one state */
+    ASSERT_DOUBLE_EQ(corr, 0.0, 1e-9);
+    
+    preload_markov_free(markov, NULL);
+    preload_exe_free(exe_a);
+    preload_exe_free(exe_b);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_markov_partial_correlation(void)
+{
+    test_init_state();
+    state->time = 1000;
+    
+    preload_exe_t *exe_a = preload_exe_new("/usr/bin/test_a", FALSE, NULL);
+    preload_exe_t *exe_b = preload_exe_new("/usr/bin/test_b", FALSE, NULL);
+    
+    preload_state_register_exe(exe_a, FALSE);
+    preload_state_register_exe(exe_b, FALSE);
+    
+    preload_markov_t *markov = preload_markov_new(exe_a, exe_b, TRUE);
+    
+    /* Set up: A runs 500, B runs 600, both together 400 */
+    exe_a->time = 500;
+    exe_b->time = 600;
+    markov->time = 400;
+    
+    double corr = preload_markov_correlation(markov);
+    /* Should be between -1 and 1 */
+    ASSERT_TRUE(corr >= -1.0 && corr <= 1.0);
+    
+    preload_markov_free(markov, NULL);
+    preload_exe_free(exe_a);
+    preload_exe_free(exe_b);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_markov_state_changed(void)
+{
+    test_init_state();
+    state->time = 100;
+    
+    preload_exe_t *exe_a = preload_exe_new("/usr/bin/test_a", FALSE, NULL);
+    preload_exe_t *exe_b = preload_exe_new("/usr/bin/test_b", FALSE, NULL);
+    
+    preload_state_register_exe(exe_a, FALSE);
+    preload_state_register_exe(exe_b, FALSE);
+    
+    preload_markov_t *markov = preload_markov_new(exe_a, exe_b, TRUE);
+    int initial_state = markov->state;
+    
+    /* Change exe_a to running */
+    exe_a->running_timestamp = state->last_running_timestamp;
+    state->time = 150;  /* Move time forward */
+    
+    /* Call state changed */
+    preload_markov_state_changed(markov);
+    
+    /* State should have changed */
+    ASSERT_TRUE(markov->state != initial_state || markov->change_timestamp == 150);
+    
+    preload_markov_free(markov, NULL);
+    preload_exe_free(exe_a);
+    preload_exe_free(exe_b);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int markov_count = 0;
+
+static void count_markov_callback(gpointer markov, gpointer data)
+{
+    (void)markov;
+    (void)data;
+    markov_count++;
+}
+
+
+static int test_markov_foreach(void)
+{
+    test_init_state();
+    
+    /* Create exes and markovs */
+    preload_exe_t *exe_a = preload_exe_new("/usr/bin/test_a", FALSE, NULL);
+    preload_exe_t *exe_b = preload_exe_new("/usr/bin/test_b", FALSE, NULL);
+    preload_exe_t *exe_c = preload_exe_new("/usr/bin/test_c", FALSE, NULL);
+    
+    preload_state_register_exe(exe_a, FALSE);
+    preload_state_register_exe(exe_b, FALSE);
+    preload_state_register_exe(exe_c, FALSE);
+    
+    /* Create markov chains */
+    preload_markov_new(exe_a, exe_b, TRUE);
+    preload_markov_new(exe_a, exe_c, TRUE);
+    preload_markov_new(exe_b, exe_c, TRUE);
+    
+    /* Count markovs using foreach */
+    markov_count = 0;
+    preload_markov_foreach(count_markov_callback, NULL);
+    
+    /* Should have 3 markov chains */
+    ASSERT_EQ(markov_count, 3);
+    
+    preload_exe_free(exe_a);
+    preload_exe_free(exe_b);
+    preload_exe_free(exe_c);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
 int test_markov_run(void)
 {
     int failed = 0;
@@ -200,6 +339,34 @@ int test_markov_run(void)
     
     fprintf(stderr, "  Running test_markov_correlation_zero... ");
     if (test_markov_correlation_zero() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_markov_correlation_full... ");
+    if (test_markov_correlation_full() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_markov_partial_correlation... ");
+    if (test_markov_partial_correlation() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_markov_state_changed... ");
+    if (test_markov_state_changed() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_markov_foreach... ");
+    if (test_markov_foreach() == TEST_PASS) {
         fprintf(stderr, "PASS\n");
     } else {
         failed++;

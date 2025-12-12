@@ -206,6 +206,116 @@ static int test_state_io_format_compatibility(void)
 }
 
 
+static int test_state_io_read_nonexistent(void)
+{
+    test_init_state();
+    
+    /* Reading a non-existent file returns NULL (logs warning) - this is expected behavior */
+    char *errmsg = preload_state_read_file("/tmp/nonexistent_preload_state_file_xyz");
+    
+    /* The function returns NULL and logs a warning, does not return error */
+    ASSERT_NULL(errmsg);
+    
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_state_io_multiple_exes(void)
+{
+    test_init_state();
+    
+    char tmpfile[] = "/tmp/preload_test_XXXXXX";
+    int fd = mkstemp(tmpfile);
+    ASSERT_TRUE(fd >= 0);
+    close(fd);
+    
+    /* Create several exes */
+    for (int i = 0; i < 5; i++) {
+        char path[64];
+        g_snprintf(path, sizeof(path), "/usr/bin/app%d", i);
+        preload_exe_t *exe = preload_exe_new(path, FALSE, NULL);
+        exe->time = 100 + i * 10;
+        preload_state_register_exe(exe, FALSE);
+    }
+    
+    state->time = 1000;
+    int original_count = g_hash_table_size(state->exes);
+    
+    /* Write state */
+    state->dirty = TRUE;
+    char *errmsg = preload_state_write_file(tmpfile);
+    ASSERT_NULL(errmsg);
+    
+    /* Reset and reload */
+    test_cleanup_state();
+    test_init_state();
+    
+    errmsg = preload_state_read_file(tmpfile);
+    ASSERT_NULL(errmsg);
+    
+    ASSERT_EQ(g_hash_table_size(state->exes), original_count);
+    
+    unlink(tmpfile);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_state_io_bad_exes_persistence(void)
+{
+    test_init_state();
+    
+    char tmpfile[] = "/tmp/preload_test_XXXXXX";
+    int fd = mkstemp(tmpfile);
+    ASSERT_TRUE(fd >= 0);
+    close(fd);
+    
+    /* Add a bad exe */
+    g_hash_table_insert(state->bad_exes, g_strdup("/tmp/bad_exe"), GINT_TO_POINTER(1));
+    
+    ASSERT_EQ(g_hash_table_size(state->bad_exes), 1);
+    
+    /* Write state */
+    state->dirty = TRUE;
+    char *errmsg = preload_state_write_file(tmpfile);
+    ASSERT_NULL(errmsg);
+    
+    /* Reset and reload */
+    test_cleanup_state();
+    test_init_state();
+    
+    errmsg = preload_state_read_file(tmpfile);
+    ASSERT_NULL(errmsg);
+    
+    /* Bad exes are written but intentionally NOT read back 
+     * (see read_badexe comment: "give them another chance!") */
+    ASSERT_EQ(g_hash_table_size(state->bad_exes), 0);
+    
+    unlink(tmpfile);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_state_io_empty_path(void)
+{
+    test_init_state();
+    
+    /* Empty path should not crash */
+    char *errmsg = preload_state_read_file("");
+    /* May return error or just succeed with empty state */
+    if (errmsg) g_free(errmsg);
+    
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
 int test_state_io_run(void)
 {
     int failed = 0;
@@ -226,6 +336,34 @@ int test_state_io_run(void)
     
     fprintf(stderr, "  Running test_state_io_format_compatibility... ");
     if (test_state_io_format_compatibility() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_state_io_read_nonexistent... ");
+    if (test_state_io_read_nonexistent() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_state_io_multiple_exes... ");
+    if (test_state_io_multiple_exes() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_state_io_bad_exes_persistence... ");
+    if (test_state_io_bad_exes_persistence() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_state_io_empty_path... ");
+    if (test_state_io_empty_path() == TEST_PASS) {
         fprintf(stderr, "PASS\n");
     } else {
         failed++;

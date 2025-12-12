@@ -70,6 +70,10 @@
 extern int test_markov_run(void);
 extern int test_vomm_run(void);
 extern int test_state_io_run(void);
+extern int test_exe_run(void);
+extern int test_map_run(void);
+extern int test_model_utils_run(void);
+extern int test_time_utils_run(void);
 
 
 int main(int argc, char **argv)
@@ -83,7 +87,13 @@ int main(int argc, char **argv)
     fprintf(stderr, "\n=== preload-ng Unit Tests ===\n\n");
     
     /* Run test suites */
-    fprintf(stderr, "[Markov Tests]\n");
+    fprintf(stderr, "[Exe Tests]\n");
+    failed += test_exe_run();
+    
+    fprintf(stderr, "\n[Map Tests]\n");
+    failed += test_map_run();
+    
+    fprintf(stderr, "\n[Markov Tests]\n");
     failed += test_markov_run();
     
     fprintf(stderr, "\n[VOMM Tests]\n");
@@ -91,6 +101,12 @@ int main(int argc, char **argv)
     
     fprintf(stderr, "\n[State I/O Tests]\n");
     failed += test_state_io_run();
+    
+    fprintf(stderr, "\n[Model Utils Tests]\n");
+    failed += test_model_utils_run();
+    
+    fprintf(stderr, "\n[Time Utils Tests]\n");
+    failed += test_time_utils_run();
     
     fprintf(stderr, "\n=== Test Summary ===\n");
     fprintf(stderr, "Failed: %d\n", failed);

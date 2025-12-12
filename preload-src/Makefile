@@ -22,7 +22,8 @@ DEPS = $(OBJS:.o=.d)
 TARGET = preload
 
 # Test files
-TEST_SRCS = src/tests/test_main.c src/tests/test_markov.c src/tests/test_vomm.c src/tests/test_state_io.c
+TEST_SRCS = src/tests/test_main.c src/tests/test_markov.c src/tests/test_vomm.c src/tests/test_state_io.c \
+            src/tests/test_exe.c src/tests/test_map.c src/tests/test_model_utils.c src/tests/test_time_utils.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
 TEST_DEPS = $(TEST_SRCS:.c=.d)
 # Core objects needed for tests (exclude daemon entry point)

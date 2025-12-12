@@ -169,6 +169,80 @@ static int test_vomm_null_safety(void)
 }
 
 
+static int test_vomm_deep_sequence(void)
+{
+    test_init_state();
+    
+    gboolean ok = vomm_init();
+    ASSERT_TRUE(ok);
+    
+    /* Create several executables */
+    preload_exe_t *exes[8];
+    for (int i = 0; i < 8; i++) {
+        char path[64];
+        g_snprintf(path, sizeof(path), "/usr/bin/app%d", i);
+        exes[i] = preload_exe_new(path, FALSE, NULL);
+        preload_state_register_exe(exes[i], FALSE);
+    }
+    
+    /* Simulate a long sequence to exercise depth limit */
+    for (int i = 0; i < 20; i++) {
+        vomm_update(exes[i % 8]);
+    }
+    
+    /* Predict should still work */
+    vomm_predict();
+    
+    vomm_cleanup();
+    for (int i = 0; i < 8; i++) {
+        preload_exe_free(exes[i]);
+    }
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_vomm_repeated_exe(void)
+{
+    test_init_state();
+    
+    gboolean ok = vomm_init();
+    ASSERT_TRUE(ok);
+    
+    preload_exe_t *exe = preload_exe_new("/usr/bin/repeated", FALSE, NULL);
+    preload_state_register_exe(exe, FALSE);
+    
+    /* Update with same exe many times */
+    for (int i = 0; i < 10; i++) {
+        vomm_update(exe);
+    }
+    
+    vomm_predict();
+    
+    vomm_cleanup();
+    preload_exe_free(exe);
+    test_cleanup_state();
+    
+    return TEST_PASS;
+}
+
+
+static int test_vomm_double_cleanup(void)
+{
+    test_init_state();
+    
+    gboolean ok = vomm_init();
+    ASSERT_TRUE(ok);
+    
+    vomm_cleanup();
+    vomm_cleanup();  /* Should be safe to call twice */
+    
+    test_cleanup_state();
+    return TEST_PASS;
+}
+
+
 int test_vomm_run(void)
 {
     int failed = 0;
@@ -203,6 +277,27 @@ int test_vomm_run(void)
     
     fprintf(stderr, "  Running test_vomm_null_safety... ");
     if (test_vomm_null_safety() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_vomm_deep_sequence... ");
+    if (test_vomm_deep_sequence() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_vomm_repeated_exe... ");
+    if (test_vomm_repeated_exe() == TEST_PASS) {
+        fprintf(stderr, "PASS\n");
+    } else {
+        failed++;
+    }
+    
+    fprintf(stderr, "  Running test_vomm_double_cleanup... ");
+    if (test_vomm_double_cleanup() == TEST_PASS) {
         fprintf(stderr, "PASS\n");
     } else {
         failed++;
