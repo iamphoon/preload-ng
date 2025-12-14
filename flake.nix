@@ -114,9 +114,9 @@
           cfg = config.services.preload-ng;
           preload-pkg =
             if cfg.usePrecompiled then
-              self.packages.${pkgs.system}.preload-ng-bin
+              self.packages.${pkgs.stdenv.hostPlatform.system}.preload-ng-bin
             else
-              self.packages.${pkgs.system}.preload-ng-src;
+              self.packages.${pkgs.stdenv.hostPlatform.system}.preload-ng-src;
 
           # Generate preload.conf content from options
           configContent = ''
@@ -357,9 +357,9 @@
 
       # Overlay for use in other flakes
       overlays.default = final: prev: {
-        preload-ng = self.packages.${prev.system}.default;
-        preload-ng-bin = self.packages.${prev.system}.preload-ng-bin;
-        preload-ng-src = self.packages.${prev.system}.preload-ng-src;
+        preload-ng = self.packages.${prev.stdenv.hostPlatform.system}.default;
+        preload-ng-bin = self.packages.${prev.stdenv.hostPlatform.system}.preload-ng-bin;
+        preload-ng-src = self.packages.${prev.stdenv.hostPlatform.system}.preload-ng-src;
       };
     };
 }
